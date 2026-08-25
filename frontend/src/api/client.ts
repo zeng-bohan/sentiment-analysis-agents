@@ -1,4 +1,4 @@
-import type { AnalysisRequest, TaskDetail, TaskResponse } from './types'
+import type { AnalysisRequest, StatsResponse, TaskDetail, TaskResponse } from './types'
 
 /** 从 FastAPI 错误响应中提取可读信息（detail 为字符串或 422 校验数组） */
 async function readError(res: Response): Promise<string> {
@@ -35,6 +35,12 @@ export async function getTask(taskId: string): Promise<TaskDetail> {
 
 export async function cancelTask(taskId: string): Promise<TaskDetail> {
   const res = await fetch(`/v1/tasks/${taskId}/cancel`, { method: 'POST' })
+  if (!res.ok) throw new Error(await readError(res))
+  return res.json()
+}
+
+export async function getStats(): Promise<StatsResponse> {
+  const res = await fetch('/v1/stats')
   if (!res.ok) throw new Error(await readError(res))
   return res.json()
 }

@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react'
-import type { StatsResponse, TaskStatus } from '../api/types'
-
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  queued: '排队',
-  running: '运行',
-  succeeded: '完成',
-  failed: '失败',
-  cancelled: '取消',
-}
+import { getStats } from '../api/client'
+import type { TaskStatus } from '../api/types'
+import { STATUS_LABELS } from './statusMeta'
 
 interface Props {
   /** 变化时重新拉取统计（如任务终态后） */
@@ -15,15 +9,13 @@ interface Props {
 }
 
 export function StatsHeader({ refreshKey }: Props) {
-  const [stats, setStats] = useState<StatsResponse | null>(null)
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof getStats>> | null>(
+    null,
+  )
 
   useEffect(() => {
     let cancelled = false
-    fetch('/v1/stats')
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json() as Promise<StatsResponse>
-      })
+    getStats()
       .then((s) => {
         if (!cancelled) setStats(s)
       })
