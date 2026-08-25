@@ -1,41 +1,28 @@
-import { useEffect, useState } from 'react'
-import type { HealthResponse } from './api/types'
-
-type HealthState =
-  | { kind: 'loading' }
-  | { kind: 'ok'; health: HealthResponse }
-  | { kind: 'error'; message: string }
-
-function useHealth(): HealthState {
-  const [state, setState] = useState<HealthState>({ kind: 'loading' })
-
-  useEffect(() => {
-    let cancelled = false
-    fetch('/health')
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json() as Promise<HealthResponse>
-      })
-      .then((health) => {
-        if (!cancelled) setState({ kind: 'ok', health })
-      })
-      .catch((err: unknown) => {
-        if (!cancelled)
-          setState({
-            kind: 'error',
-            message: err instanceof Error ? err.message : String(err),
-          })
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  return state
-}
+import { useState } from 'react'
+import { submitTask } from './api/client'
+import type { AnalysisRequest } from './api/types'
+import { TaskForm } from './components/TaskForm'
+import { TaskPanel } from './components/TaskPanel'
+import { useHealth } from './useHealth'
 
 function App() {
   const health = useHealth()
+  const [taskId, setTaskId] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const handleSubmit = async (req: AnalysisRequest) => {
+    setSubmitting(true)
+    setSubmitError(null)
+    try {
+      const res = await submitTask(req)
+      setTaskId(res.task_id)
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
@@ -66,12 +53,22 @@ function App() {
       </header>
 
       {health.kind === 'error' && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           无法访问后端服务，请先启动后端（uvicorn app.main:app）后刷新页面。
         </div>
       )}
 
-      <main>{/* 任务表单 / 事件时间线 / 结果区：后续票实现 */}</main>
+      <main className="space-y-4">
+        <TaskForm submitting={submitting} onSubmit={handleSubmit} />
+
+        {submitError && (
+          <p className="rounded-md bg-red-50 p-3 text-sm text-red-600">
+            提交失败：{submitError}
+          </p>
+        )}
+
+        {taskId && <TaskPanel key={taskId} taskId={taskId} />}
+      </main>
     </div>
   )
 }
