@@ -74,6 +74,23 @@ curl -N http://localhost:8000/v1/tasks/<task_id>/events
 curl -o report.html http://localhost:8000/v1/reports/<task_id>?fmt=html
 ```
 
+### 4. Task console (web UI)
+
+A React single-page console lives in `frontend/` — submit tasks, watch the
+live SSE progress timeline, cancel runs, and read the rendered Markdown
+report with token/cost chips.
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173, proxied to :8000 (no CORS config needed)
+```
+
+Start the backend first (mock LLM works without an API key). The console
+shows a green "已连接" badge when the backend is reachable.
+
+![Task console](frontend/docs/console-demo.png)
+
 ## API
 
 | Method | Path | Description |

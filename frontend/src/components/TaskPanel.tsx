@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { cancelTask, getTask } from '../api/client'
 import { isTerminal, type TaskDetail, type TaskEvent, type TaskStatus } from '../api/types'
+import { ResultPanel } from './ResultPanel'
 import { StatusBadge } from './StatusBadge'
 
 interface TimelineEntry {
@@ -184,9 +185,7 @@ export function TaskPanel({ taskId, onFinished }: Props) {
       )}
 
       <div className="max-h-64 space-y-1 overflow-y-auto rounded-md bg-gray-50 p-2 font-mono text-xs">
-        {events.length === 0 && (
-          <p className="text-gray-400">等待事件…</p>
-        )}
+        {events.length === 0 && <p className="text-gray-400">等待事件…</p>}
         {events.map((e, i) => (
           <p key={i} className="text-gray-700">
             <span className="text-gray-400">[{e.time}]</span> {e.status}
@@ -196,11 +195,7 @@ export function TaskPanel({ taskId, onFinished }: Props) {
         ))}
       </div>
 
-      {status === 'succeeded' && (
-        <p className="text-xs text-gray-500">
-          任务完成，结果区展示报告（下一票实现）。
-        </p>
-      )}
+      {status === 'succeeded' && detail && <ResultPanel detail={detail} />}
     </section>
   )
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { submitTask } from './api/client'
 import type { AnalysisRequest } from './api/types'
+import { StatsHeader } from './components/StatsHeader'
 import { TaskForm } from './components/TaskForm'
 import { TaskPanel } from './components/TaskPanel'
 import { useHealth } from './useHealth'
@@ -10,6 +11,7 @@ function App() {
   const [taskId, setTaskId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [statsTick, setStatsTick] = useState(0)
 
   const handleSubmit = async (req: AnalysisRequest) => {
     setSubmitting(true)
@@ -59,6 +61,8 @@ function App() {
       )}
 
       <main className="space-y-4">
+        {health.kind === 'ok' && <StatsHeader refreshKey={statsTick} />}
+
         <TaskForm submitting={submitting} onSubmit={handleSubmit} />
 
         {submitError && (
@@ -67,7 +71,13 @@ function App() {
           </p>
         )}
 
-        {taskId && <TaskPanel key={taskId} taskId={taskId} />}
+        {taskId && (
+          <TaskPanel
+            key={taskId}
+            taskId={taskId}
+            onFinished={() => setStatsTick((t) => t + 1)}
+          />
+        )}
       </main>
     </div>
   )

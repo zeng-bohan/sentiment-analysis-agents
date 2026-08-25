@@ -8,3 +8,29 @@ body {
   color: #151515;
   -webkit-font-smoothing: antialiased;
 }
+
+/* react-markdown 输出的报告排版（未引入 typography 插件，手动兜底） */
+.markdown h1 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+.markdown h2 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.25rem;
+}
+.markdown p {
+  margin: 0.25rem 0;
+}
+.markdown blockquote {
+  margin: 0.5rem 0;
+  border-left: 3px solid #cbd5e1;
+  padding-left: 0.75rem;
+  color: #475569;
+}
+.markdown ul {
+  margin: 0.25rem 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
