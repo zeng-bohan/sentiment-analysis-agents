@@ -231,6 +231,62 @@ async def test_task_manager_submit_and_succeed(task_manager):
 
 
 @pytest.mark.asyncio
+async def test_task_summary_contains_enriched_structured_fields(task_manager):
+    """票①字段契约：summary 含整体情绪占比、帖子总量与各 Agent 结构化产出（真实统计）。"""
+    tid = await task_manager.submit("结构化字段契约验证")
+    for _ in range(150):
+        data = await task_manager.get_task(tid)
+        if data and data["status"] == SUCCEEDED:
+            break
+        await asyncio.sleep(0.02)
+    data = await task_manager.get_task(tid)
+    assert data["status"] == SUCCEEDED
+    summary = data["summary"]
+
+    # summary 顶层：整体情绪占比（三键之和 ≈ 100）与分析帖子总数
+    breakdown = summary["overall_sentiment_breakdown"]
+    assert set(breakdown) == {"positive", "neutral", "negative"}
+    assert sum(breakdown.values()) == pytest.approx(100, abs=0.5)
+    assert isinstance(summary["total_posts_analyzed"], int)
+    assert summary["total_posts_analyzed"] >= 25
+
+    results = summary["agent_results"]
+
+    # query：分渠道统计（每平台一条，渠道内三占比之和 ≈ 100）+ 热门帖榜（按互动降序）
+    query = results["query"]
+    assert len(query["channel_stats"]) >= 4
+    for cs in query["channel_stats"]:
+        assert {"channel", "posts", "positive_pct", "neutral_pct", "negative_pct", "engagement"} <= set(cs)
+        assert (
+            cs["positive_pct"] + cs["neutral_pct"] + cs["negative_pct"]
+            == pytest.approx(100, abs=0.5)
+        )
+    top_posts = query["top_posts"]
+    assert 1 <= len(top_posts) <= 5
+    for p in top_posts:
+        assert {"platform", "content", "likes", "comments", "sentiment"} <= set(p)
+        assert p["sentiment"] in {"positive", "neutral", "negative"}
+    engagements = [p["likes"] + p["comments"] for p in top_posts]
+    assert engagements == sorted(engagements, reverse=True)
+
+    # media：情绪占比 + 渠道声量
+    media = results["media"]
+    assert set(media["sentiment_breakdown"]) == {"positive", "neutral", "negative"}
+    assert sum(media["sentiment_breakdown"].values()) == pytest.approx(100, abs=0.5)
+    assert media["channel_volume"]
+    for cv in media["channel_volume"]:
+        assert {"channel", "posts", "engagement"} <= set(cv)
+
+    # insight：优先行动清单（3-5 条，urgency 枚举合法）
+    actions = results["insight"]["priority_actions"]
+    assert 3 <= len(actions) <= 5
+    for act in actions:
+        assert set(act) == {"action", "rationale", "urgency"}
+        assert act["action"] and act["rationale"]
+        assert act["urgency"] in {"high", "medium", "low"}
+
+
+@pytest.mark.asyncio
 async def test_task_manager_sse_stream(task_manager):
     tid = await task_manager.submit("SSE 测试")
     events = []

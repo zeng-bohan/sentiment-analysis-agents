@@ -15,7 +15,7 @@ from typing import Any, Callable
 
 from ..agents.agents import build_agents
 from ..agents.base import AgentContext, BaseAgent
-from ..agents.tools import ToolRegistry, build_default_registry
+from ..agents.tools import ToolRegistry, build_default_registry, demo_corpus_stats
 from ..config import Settings
 from ..core.llm import BaseLLM
 from ..core.observability import Observability
@@ -146,9 +146,13 @@ class ForumEngine:
         failed: list[str],
         elapsed: float,
     ) -> dict[str, Any]:
+        # 顶层整体统计：从演示数据源真实计算（与各 Agent 口径一致）
+        corpus = demo_corpus_stats()
         return {
             "task_id": ctx.task_id,
             "query": ctx.query,
+            "overall_sentiment_breakdown": corpus["sentiment_breakdown"],
+            "total_posts_analyzed": corpus["total_posts"],
             "agent_results": agent_results,
             "failed_agents": failed,
             "success_rate": round(
