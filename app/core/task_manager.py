@@ -19,6 +19,7 @@ from .llm import BaseLLM
 from .observability import Observability
 from ..engines.forum_engine import ForumEngine
 from ..engines.report_engine import ReportEngine
+from sse_starlette.event import ServerSentEvent
 
 # 任务状态
 QUEUED, RUNNING, SUCCEEDED, FAILED, CANCELLED = (
@@ -170,17 +171,22 @@ class TaskManager:
         }
 
 
-async def sse_events(task_id: str, tm: TaskManager) -> AsyncIterator[str]:
-    """SSE 事件生成器：推送任务进度，直到终态。"""
+async def sse_events(task_id: str, tm: TaskManager) -> AsyncIterator[ServerSentEvent]:
+    """SSE 事件生成器：推送任务进度，直到终态。
+
+    产出 ServerSentEvent 对象（而非手工拼 "data: " 字符串）：
+    EventSourceResponse 对生成器产出还会再序列化一次，手拼前缀会导致
+    线上报文出现 "data: data:" 双前缀，浏览器 JSON.parse 失败。
+    """
     q = tm.subscribe(task_id)
     try:
         while True:
             try:
                 payload = await asyncio.wait_for(q.get(), timeout=30.0)
             except asyncio.TimeoutError:
-                yield ":\n\n"  # 心跳保活
+                yield ServerSentEvent(comment="keep-alive")  # 心跳保活
                 continue
-            yield f"data: {json.dumps(payload, ensure_ascii=False)}\n\n"
+            yield ServerSentEvent(data=json.dumps(payload, ensure_ascii=False))
             if payload.get("status") in (SUCCEEDED, FAILED, CANCELLED):
                 break
     finally:

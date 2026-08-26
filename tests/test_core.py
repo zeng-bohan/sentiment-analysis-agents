@@ -1,6 +1,7 @@
 """核心模块测试：LLM、缓存、工具、Agent、ForumEngine、ReportEngine、TaskManager。"""
 from __future__ import annotations
 
+import json
 import asyncio
 import os
 
@@ -380,3 +381,27 @@ async def test_task_manager_stats(task_manager):
     stats = await task_manager.stats()
     assert stats["total"] >= 1
     assert stats["concurrency_limit"] > 0
+
+
+# ---------- SSE 线上格式 ----------
+
+@pytest.mark.asyncio
+async def test_sse_events_wire_format_single_prefix(task_manager):
+    """SSE 线上报文每个事件只允许一层 data: 前缀，且内容为合法 JSON。"""
+    from sse_starlette.event import ensure_bytes
+
+    from app.core.task_manager import sse_events
+
+    tid = await task_manager.submit("SSE 线上格式测试")
+    saw_data = False
+    async for chunk in sse_events(tid, task_manager):
+        # EventSourceResponse 会对生成器产出再序列化一次，测试必须走同一层
+        wire = ensure_bytes(chunk, "\n\n")
+        assert b"data: data:" not in wire, f"出现双前缀: {wire[:80]!r}"
+        if wire.startswith(b"data: "):
+            saw_data = True
+            payload = json.loads(wire[6:].decode("utf-8").strip())
+            assert "status" in payload
+            if payload.get("status") in (SUCCEEDED, FAILED):
+                break
+    assert saw_data, "未收到任何 data 事件"

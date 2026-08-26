@@ -1,14 +1,11 @@
 import type { TaskStatus } from '../api/types'
+import { Badge } from '@/components/ui/badge'
 import { STATUS_LABELS, STATUS_STYLES } from './statusMeta'
 
 export function StatusBadge({ status }: { status: TaskStatus }) {
   return (
-    <span
-      className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-        STATUS_STYLES[status] ?? 'bg-gray-100 text-gray-700'
-      }`}
-    >
+    <Badge className={STATUS_STYLES[status] ?? 'bg-muted text-muted-foreground'}>
       {STATUS_LABELS[status] ?? status}
-    </span>
+    </Badge>
   )
 }

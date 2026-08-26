@@ -91,6 +91,13 @@ shows a green "已连接" badge when the backend is reachable.
 
 ![Task console](frontend/docs/console-demo.png)
 
+The generated report is a 12-chapter document with ECharts sentiment and
+channel-volume charts, agent deep-dive cards, risk/opportunity callouts
+and a full post appendix — available as HTML / Markdown / PDF (10+ pages)
+from the console or `/v1/reports/{id}`.
+
+![Analysis report](frontend/docs/report-demo.png)
+
 ## API
 
 | Method | Path | Description |

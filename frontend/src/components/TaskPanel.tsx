@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { cancelTask, getTask } from '../api/client'
 import { isTerminal, type TaskDetail, type TaskEvent, type TaskStatus } from '../api/types'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { ResultPanel } from './ResultPanel'
 import { StatusBadge } from './StatusBadge'
 
@@ -134,68 +140,68 @@ export function TaskPanel({ taskId, onFinished }: Props) {
   }
 
   return (
-    <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-sm font-semibold">任务</h2>
-        <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs">
-          {taskId}
-        </code>
-        <StatusBadge status={status} />
-        {reconnecting && (
-          <span className="rounded-full bg-orange-100 px-2 py-0.5 text-xs text-orange-700">
-            重连中…
-          </span>
-        )}
-        {active && (
-          <button
-            onClick={handleCancel}
-            disabled={cancelling}
-            className="ml-auto rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
-          >
-            {cancelling ? '取消中…' : '取消任务'}
-          </button>
-        )}
-      </div>
-
-      {actionError && (
-        <p className="rounded-md bg-red-50 p-2 text-xs text-red-600">
-          操作失败：{actionError}
-        </p>
-      )}
-
-      <div>
-        <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
-          <span>{detail?.stage || '等待调度…'}</span>
-          <span>{progress}%</span>
+    <Card>
+      <CardContent className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-sm font-semibold">任务</h2>
+          <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
+            {taskId}
+          </code>
+          <StatusBadge status={status} />
+          {reconnecting && (
+            <Badge className="bg-orange-100 text-orange-700">重连中…</Badge>
+          )}
+          {active && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="ml-auto"
+            >
+              {cancelling ? '取消中…' : '取消任务'}
+            </Button>
+          )}
         </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
-          <div
-            className={`h-full rounded-full transition-all duration-300 ${
-              status === 'failed' ? 'bg-red-500' : 'bg-blue-600'
-            }`}
-            style={{ width: `${progress}%` }}
-          />
+
+        {actionError && (
+          <Alert variant="destructive" className="text-xs">
+            <AlertTitle>操作失败</AlertTitle>
+            <AlertDescription>{actionError}</AlertDescription>
+          </Alert>
+        )}
+
+        <div>
+          <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+            <span>{detail?.stage || '等待调度…'}</span>
+            <span>{progress}%</span>
+          </div>
+          <Progress value={progress} aria-label={`任务进度 ${progress}%`} />
         </div>
-      </div>
 
-      {status === 'failed' && detail?.error && (
-        <p className="rounded-md bg-red-50 p-2 text-xs text-red-600">
-          失败原因：{detail.error}
-        </p>
-      )}
+        {status === 'failed' && detail?.error && (
+          <Alert variant="destructive" className="text-xs">
+            <AlertTitle>任务失败</AlertTitle>
+            <AlertDescription>失败原因：{detail.error}</AlertDescription>
+          </Alert>
+        )}
 
-      <div className="max-h-64 space-y-1 overflow-y-auto rounded-md bg-gray-50 p-2 font-mono text-xs">
-        {events.length === 0 && <p className="text-gray-400">等待事件…</p>}
-        {events.map((e, i) => (
-          <p key={i} className="text-gray-700">
-            <span className="text-gray-400">[{e.time}]</span> {e.status}
-            {e.stage ? ` · ${e.stage}` : ''}
-            {e.progress !== undefined ? ` · ${e.progress}%` : ''}
-          </p>
-        ))}
-      </div>
+        <ScrollArea className="max-h-64 rounded-md bg-muted/50 p-2 font-mono text-xs">
+          {events.length === 0 && (
+            <p className="text-muted-foreground">等待事件…</p>
+          )}
+          {events.map((e, i) => (
+            <p key={i} className="text-foreground/80">
+              <span className="text-muted-foreground">[{e.time}]</span>{' '}
+              {e.status}
+              {e.stage ? ` · ${e.stage}` : ''}
+              {e.progress !== undefined ? ` · ${e.progress}%` : ''}
+            </p>
+          ))}
+        </ScrollArea>
 
-      {status === 'succeeded' && detail && <ResultPanel detail={detail} />}
-    </section>
+        {status === 'succeeded' && detail && <ResultPanel detail={detail} />}
+      </CardContent>
+    </Card>
   )
 }
