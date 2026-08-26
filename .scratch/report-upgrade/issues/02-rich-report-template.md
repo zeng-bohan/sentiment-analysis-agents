@@ -6,7 +6,7 @@
 
 **Status:** ready-for-agent
 
-- [ ] fmt=html 打开可见 10+ 章节与 ECharts 图表，无裸 Python repr
-- [ ] fmt=md 为结构化章节文本（标题/表格/列表），无 HTML 标签残留
-- [ ] fmt=pdf 页数 ≥ 10 且含标题与表格（新增程序化断言测试）
-- [ ] 全量 pytest 绿
+- [x] fmt=html 打开可见 10+ 章节与 ECharts 图表，无裸 Python repr
+- [x] fmt=md 为结构化章节文本（标题/表格/列表），无 HTML 标签残留
+- [x] fmt=pdf 页数 ≥ 10 且含标题与表格（新增程序化断言测试）
+- [x] 全量 pytest 绿

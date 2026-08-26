@@ -6,9 +6,9 @@
 
 **Status:** ready-for-agent
 
-- [ ] _DEMO_POSTS 扩至 25-30 条，覆盖微博/小红书/抖音/快手，含 likes/comments/sentiment
-- [ ] summary 新增 overall_sentiment_breakdown 与 total_posts_analyzed
-- [ ] query 结果新增 channel_stats 与 top_posts（字段契约见 spec）
-- [ ] media 结果新增 sentiment_breakdown 与 channel_volume
-- [ ] insight 结果新增 priority_actions
-- [ ] 新增测试断言新字段存在；全量 pytest 绿
+- [x] _DEMO_POSTS 扩至 25-30 条，覆盖微博/小红书/抖音/快手，含 likes/comments/sentiment
+- [x] summary 新增 overall_sentiment_breakdown 与 total_posts_analyzed
+- [x] query 结果新增 channel_stats 与 top_posts（字段契约见 spec）
+- [x] media 结果新增 sentiment_breakdown 与 channel_volume
+- [x] insight 结果新增 priority_actions
+- [x] 新增测试断言新字段存在；全量 pytest 绿
