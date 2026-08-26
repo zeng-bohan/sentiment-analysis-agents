@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+{# 富报告模板：章节卡片 + ECharts(CDN)。CDN 失败时仅图表区降级为提示，正文与数据表格完整可读。 #}
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --accent: #2f5fd0;
+    --accent-deep: #1f2f4d;
+    --ink: #232a35;
+    --muted: #66707f;
+    --line: #e3e8f0;
+    --bg: #f3f5f9;
+    --danger: #c0392b;
+    --success: #27ae60;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--ink);
+    margin: 0; padding: 24px 16px 48px; line-height: 1.75;
+  }
+  main { max-width: 960px; margin: 0 auto; }
+
+  /* ---- 报告头 ---- */
+  .report-header {
+    background: linear-gradient(135deg, var(--accent-deep) 0%, var(--accent) 100%);
+    color: #fff; border-radius: 14px; padding: 28px 32px; margin-bottom: 22px;
+    box-shadow: 0 10px 24px rgba(31, 47, 77, .25);
+  }
+  .report-header h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: .5px; }
+  .report-header .subtitle { color: rgba(255,255,255,.85); font-size: 15px; margin: 0 0 14px; }
+  .meta-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .chip {
+    background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.22);
+    border-radius: 999px; padding: 2px 12px; font-size: 12.5px; color: #fff;
+  }
+  .badge { border-radius: 999px; padding: 3px 14px; font-size: 13px; font-weight: 600; }
+  .badge.positive { background: #27ae60; color: #fff; }
+  .badge.neutral { background: #95a5a6; color: #fff; }
+  .badge.negative { background: #c0392b; color: #fff; }
+
+  /* ---- 章节卡片 ---- */
+  section.card {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px 26px; margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(35, 42, 53, .05);
+  }
+  section.card h2 {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 19px; margin: 0 0 14px; padding-bottom: 10px;
+    border-bottom: 2px solid var(--line); color: var(--accent-deep);
+  }
+  .sec-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 28px; height: 28px; border-radius: 8px;
+    background: var(--accent); color: #fff; font-size: 14px; font-weight: 700;
+  }
+  h3 { font-size: 16px; margin: 18px 0 8px; color: var(--ink); }
+
+  /* ---- 指标磁贴 ---- */
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+  .metric {
+    background: #f6f8fc; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 14px;
+  }
+  .metric .m-label { display: block; color: var(--muted); font-size: 12.5px; }
+  .metric .m-value { display: block; font-size: 18px; font-weight: 700; color: var(--accent-deep); }
+
+  /* ---- 表格 ---- */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+  th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: middle; }
+  thead th { background: var(--accent); color: #fff; white-space: nowrap; }
+  tbody tr:nth-child(even) { background: #f7f9fc; }
+  tbody tr:hover { background: #eef3fc; }
+
+  /* ---- 图表容器（固定高度）---- */
+  .chart-box { height: 340px; margin: 12px 0; border: 1px dashed var(--line); border-radius: 10px; position: relative; }
+  .chart-note {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); font-size: 13px; padding: 0 24px; text-align: center;
+  }
+
+  /* ---- 彩色标注块：风险红 / 机会绿 / 建议蓝 ---- */
+  .callout { border-left: 4px solid var(--accent); border-radius: 6px; padding: 10px 14px; margin: 10px 0; }
+  .callout .c-title { font-weight: 700; }
+  .callout.danger { border-color: var(--danger); background: #fdf0ee; }
+  .callout.danger .c-title { color: var(--danger); }
+  .callout.success { border-color: var(--success); background: #edf8f1; }
+  .callout.success .c-title { color: var(--success); }
+  .callout.info { border-color: var(--accent); background: #eef3fd; }
+  .callout.info .c-title { color: var(--accent); }
+
+  ul.plain { margin: 8px 0; padding-left: 22px; }
+  ul.plain li { margin: 4px 0; }
+
+  .footnote { color: var(--muted); font-size: 12.5px; text-align: center; margin-top: 8px; }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .report-header, section.card { box-shadow: none; break-inside: avoid-page; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="report-header">
+    <h1>{{ title }}</h1>
+    <p class="subtitle">查询主题：{{ query }}</p>
+    <div class="meta-chips">
+      <span class="chip">任务 ID：{{ task_id }}</span>
+      <span class="chip">成功率：{{ success_rate }}%</span>
+      <span class="chip">耗时：{{ elapsed }}s</span>
+      {% if dominant_label %}
+      <span class="badge {{ dominant_key }}">主导情绪：{{ dominant_label }}</span>
+      {% endif %}
+    </div>
+  </header>
+
+  {% for sec in sections %}
+  <section class="card" id="sec-{{ sec.id }}">
+    <h2><span class="sec-num">{{ "%02d" % sec.num }}</span>{{ sec.title }}</h2>
+    {% for b in sec.blocks %}
+      {% if b.type == "paragraph" %}
+        <p>{{ b.text }}</p>
+      {% elif b.type == "subhead" %}
+        <h3>{{ b.text }}</h3>
+      {% elif b.type == "metrics" %}
+        <div class="metrics-grid">
+          {% for m in b['items'] %}
+          <div class="metric"><span class="m-label">{{ m.label }}</span><span class="m-value">{{ m.value }}</span></div>
+          {% endfor %}
+        </div>
+      {% elif b.type == "table" %}
+        <table>
+          <thead><tr>{% for h in b.headers %}<th>{{ h }}</th>{% endfor %}</tr></thead>
+          <tbody>
+            {% for row in b.rows %}
+            <tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% elif b.type == "list" %}
+        <ul class="plain">{% for it in b['items'] %}<li>{{ it }}</li>{% endfor %}</ul>
+      {% elif b.type == "callout" %}
+        <div class="callout {{ b.tone }}">
+          <span class="c-title">{{ b.title }}</span>{% if b.text %} — {{ b.text }}{% endif %}
+        </div>
+      {% elif b.type == "chart" %}
+        <div class="chart-box" id="chart-{{ b.chart_id }}" style="height: 340px;">
+          <div class="chart-note">「{{ b.title }}」需联网加载 ECharts（CDN）；若图表未能显示，请参阅本节数据表格，内容不受影响。</div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </section>
+  {% endfor %}
+
+  <p class="footnote">本报告由多智能体舆情分析系统自动生成 · 章节数据与统计口径详见附录明细表</p>
+</main>
+
+<script>
+(function () {
+  var payload = {{ charts_json | safe }};
+  // CDN 失败时 window.echarts 不存在，直接返回 —— 页面正文与表格完整可读
+  if (!window.echarts) return;
+
+  var donutEl = document.getElementById("chart-donut");
+  if (donutEl && payload.donut) {
+    donutEl.innerHTML = "";
+    echarts.init(donutEl).setOption({
+      title: { text: payload.donut.name, left: "center", top: 8, textStyle: { fontSize: 15 } },
+      tooltip: { trigger: "item", formatter: "{b}：{c}%（{d}%）" },
+      legend: { bottom: 8 },
+      series: [{
+        type: "pie",
+        radius: ["42%", "68%"],
+        center: ["50%", "52%"],
+        itemStyle: { borderRadius: 6, borderColor: "#fff", borderWidth: 2 },
+        label: { formatter: "{b}\n{d}%" },
+        data: payload.donut.data.map(function (d) {
+          return { name: d.name, value: d.value, itemStyle: { color: ({ "正面": "#27ae60", "中性": "#95a5a6", "负面": "#c0392b" })[d.name] } };
+        })
+      }]
+    });
+  }
+
+  var barEl = document.getElementById("chart-bar");
+  if (barEl && payload.bar && payload.bar.data.length) {
+    barEl.innerHTML = "";
+    var channels = payload.bar.data.map(function (d) { return d.channel; });
+    echarts.init(barEl).setOption({
+      title: { text: payload.bar.name, left: "center", top: 8, textStyle: { fontSize: 15 } },
+      tooltip: { trigger: "axis" },
+      legend: { bottom: 8 },
+      grid: { left: 48, right: 56, top: 48, bottom: 56 },
+      xAxis: { type: "category", data: channels },
+      yAxis: [
+        { type: "value", name: "帖子数" },
+        { type: "value", name: "互动量" }
+      ],
+      series: [
+        { name: "帖子数", type: "bar", barWidth: 32, itemStyle: { color: "#2f5fd0", borderRadius: [6, 6, 0, 0] },
+          data: payload.bar.data.map(function (d) { return d.posts; }) },
+        { name: "互动量", type: "line", yAxisIndex: 1, smooth: true, itemStyle: { color: "#e67e22" },
+          data: payload.bar.data.map(function (d) { return d.engagement; }) }
+      ]
+    });
+  }
+})();
+</script>
+</body>
+</html>

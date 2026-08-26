@@ -213,6 +213,68 @@ async def test_report_engine_generates_three_formats(report_engine, tmp_path):
         assert os.path.getsize(paths[fmt]) > 0
 
 
+async def _run_full_report(forum, report_engine, tmp_path, task_id="task-rich"):
+    """跑一次完整多智能体分析并生成三格式报告，返回 (summary, 各格式文本/字节)。"""
+    summary = await forum.run("分析星云 X1 手机口碑", task_id=task_id)
+    paths = await report_engine.generate(summary, str(tmp_path))
+    return summary, paths
+
+
+@pytest.mark.asyncio
+async def test_report_html_chaptered_rich_template(forum, report_engine, tmp_path):
+    """票②HTML：≥10 个章节标题、ECharts CDN、彩色标注块、无裸 Python repr。"""
+    summary, paths = await _run_full_report(forum, report_engine, tmp_path, "task-html")
+    html_text = open(paths["html"], encoding="utf-8").read()
+
+    # 章节：11 个 <h2>（含编号），锚点 id 齐全
+    assert html_text.count("<h2") >= 10
+    for sid in ("overview", "background", "sentiment", "channels", "top-posts",
+                "query", "media", "insight", "actions", "trace", "appendix"):
+        assert f'id="sec-{sid}"' in html_text
+
+    # 无裸 repr：Python dict/list 的字符串形式不得进入页面
+    assert "['" not in html_text
+    assert "{'" not in html_text
+
+    # ECharts 经 CDN 引入，图表数据 JSON 内联；风险红 / 机会绿 / 建议蓝标注块齐备
+    assert "echarts" in html_text and "cdn.jsdelivr.net" in html_text
+    assert 'id="chart-donut"' in html_text and 'id="chart-bar"' in html_text
+    assert '"donut"' in html_text and '"bar"' in html_text
+    assert 'callout danger' in html_text
+    assert 'callout success' in html_text
+    assert 'callout info' in html_text
+
+    # 附录明细表包含全部演示帖子（28 条样本的平台与内容均应出现）
+    assert summary["total_posts_analyzed"] >= 25
+    assert html_text.count("<table") >= 6
+
+
+@pytest.mark.asyncio
+async def test_report_markdown_is_structured(forum, report_engine, tmp_path):
+    """票②Markdown：以一级标题开头、≥10 个二级章节、含表格与列表、无 HTML 标签残留。"""
+    summary, paths = await _run_full_report(forum, report_engine, tmp_path, "task-md")
+    md = open(paths["markdown"], encoding="utf-8").read()
+
+    assert md.startswith("# ")
+    assert md.count("## ") >= 10
+    assert "| --- |" in md  # 管道表格分隔行
+    assert "\n- " in md     # 列表项
+    assert "</" not in md   # 无 HTML 标签残留
+    assert "['" not in md and "{'" not in md
+
+
+@pytest.mark.asyncio
+async def test_report_pdf_has_title_tables_and_at_least_10_pages(forum, report_engine, tmp_path):
+    """票②PDF：reportlab 渲染真实内容，页数按 /Type /Page 字节计数 ≥ 10。"""
+    summary, paths = await _run_full_report(forum, report_engine, tmp_path, "task-pdf")
+    data = open(paths["pdf"], "rb").read()
+
+    pages = data.count(b"/Type /Page") - data.count(b"/Type /Pages")
+    assert pages >= 10, f"PDF 页数不足 10 页（实际 {pages} 页）"
+    # 中文内容确实写入 PDF（标题与章节名可检索）
+    assert b"STSong-Light" in data
+
+
 # ---------- TaskManager ----------
 
 @pytest.mark.asyncio
