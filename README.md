@@ -8,6 +8,7 @@ An AI multi-agent system for collecting, analysing, and reporting on public sent
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![Tool success](https://img.shields.io/badge/Tool%20success-100%25-4C9F70?style=flat-square)
 ![Concurrency](https://img.shields.io/badge/Concurrency-60%20tasks-4C9F70?style=flat-square)
+[![CI](https://github.com/zengbohan1/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zengbohan1/sentiment-analysis-agents/actions/workflows/ci.yml)
 
 ## Highlights
 
@@ -119,7 +120,7 @@ python scripts/bench.py --concurrency 60 --tasks 60
 pytest tests -q
 ```
 
-At the measured revision, 16 tests passed; core-module coverage was 64%, with agent-layer coverage between 80% and 96%.
+At the measured revision, 21 tests passed; overall coverage was 73%, with the agent layer at 85-100% and both engines at 84-98%.
 
 ## Project structure
 
