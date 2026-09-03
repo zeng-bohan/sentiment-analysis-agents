@@ -30,3 +30,6 @@ htmlcov/
 # IDE
 .idea/
 .vscode/
+
+# Local install logs
+*.log

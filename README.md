@@ -1,4 +1,10 @@
+<p align="center">
+  <img src="docs/banner.svg" width="800" alt="Multi-agent Sentiment Analysis" />
+</p>
+
 # Multi-agent Sentiment Analysis
+
+> English | [简体中文](README.zh-CN.md)
 
 An AI multi-agent system for collecting, analysing, and reporting on public sentiment. It coordinates parallel Query, Media, and Insight agents through a custom scheduler and exposes long-running task progress over SSE.
 
@@ -6,6 +12,9 @@ An AI multi-agent system for collecting, analysing, and reporting on public sent
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
 ![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat-square&logo=langchain&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![Tool success](https://img.shields.io/badge/Tool%20success-100%25-4C9F70?style=flat-square)
 ![Concurrency](https://img.shields.io/badge/Concurrency-60%20tasks-4C9F70?style=flat-square)
 [![CI](https://github.com/zengbohan1/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zengbohan1/sentiment-analysis-agents/actions/workflows/ci.yml)
@@ -20,6 +29,16 @@ An AI multi-agent system for collecting, analysing, and reporting on public sent
 - **Observability**: evaluation scripts, optional LangSmith tracing, and token-cost accounting.
 
 Measured results: 265 real-LLM tool calls completed successfully; 60 offline `MockLLM` tasks completed in the concurrency benchmark; parallel real-LLM scheduling reduced P95 from 66.2s to 30.3s; average real-LLM task cost was 0.054 CNY.
+
+## Tech stack
+
+| Layer | Technologies |
+| --- | --- |
+| Backend | Python 3.11+, FastAPI, LangChain, SQLAlchemy (async) |
+| Frontend | React 19, Vite, TypeScript, shadcn/ui, ECharts |
+| Storage | PostgreSQL, Redis, SQLite (offline mode) |
+| Reporting | HTML / Markdown / PDF report engine, ECharts charts |
+| Infra & Ops | Docker Compose, GitHub Actions CI, optional LangSmith tracing |
 
 ## Architecture
 
