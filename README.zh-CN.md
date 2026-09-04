@@ -13,7 +13,7 @@
 ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
 ![Tool success](https://img.shields.io/badge/Tool%20success-100%25-4C9F70?style=flat-square)
 ![Concurrency](https://img.shields.io/badge/Concurrency-60%20tasks-4C9F70?style=flat-square)
-[![CI](https://github.com/zengbohan1/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zengbohan1/sentiment-analysis-agents/actions/workflows/ci.yml)
+[![CI](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml)
 
 ## 亮点
 
