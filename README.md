@@ -9,14 +9,6 @@
 An AI multi-agent system for collecting, analysing, and reporting on public sentiment. It coordinates parallel Query, Media, and Insight agents through a custom scheduler and exposes long-running task progress over SSE.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)
-![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat-square&logo=langchain&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
-![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)
-![Tool success](https://img.shields.io/badge/Tool%20success-100%25-4C9F70?style=flat-square)
-![Concurrency](https://img.shields.io/badge/Concurrency-60%20tasks-4C9F70?style=flat-square)
 [![CI](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml)
 
 ## Highlights
