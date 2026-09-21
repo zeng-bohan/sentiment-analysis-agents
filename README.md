@@ -9,6 +9,7 @@
 An AI multi-agent system for collecting, analysing, and reporting on public sentiment. It coordinates parallel Query, Media, and Insight agents through a custom scheduler and exposes long-running task progress over SSE.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-4EB1BA?style=flat-square)
 [![CI](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml)
 
 ## Highlights
@@ -78,8 +79,8 @@ For an offline local run, set `DATABASE_URL=sqlite+aiosqlite:///./sentiment.db` 
 ### 3. Submit a task
 
 ```bash
-curl -X POST http://localhost:8000/v1/tasks \\
-  -H "Content-Type: application/json" \\
+curl -X POST http://localhost:8000/v1/tasks \
+  -H "Content-Type: application/json" \
   -d '{"query":"分析新品手机「星云 X1」近期的口碑舆情"}'
 
 curl -N http://localhost:8000/v1/tasks/<task_id>/events
@@ -99,7 +100,7 @@ npm run dev        # http://localhost:5173, proxied to :8000 (no CORS config nee
 ```
 
 Start the backend first (mock LLM works without an API key). The console
-shows a green "已连接" badge when the backend is reachable.
+shows a green "connected" badge when the backend is reachable.
 
 ![Task console](frontend/docs/console-demo.png)
 

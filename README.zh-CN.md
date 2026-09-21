@@ -74,8 +74,8 @@ docker compose up -d --build
 ### 3. 提交任务
 
 ```bash
-curl -X POST http://localhost:8000/v1/tasks \\
-  -H "Content-Type: application/json" \\
+curl -X POST http://localhost:8000/v1/tasks \
+  -H "Content-Type: application/json" \
   -d '{"query":"分析新品手机「星云 X1」近期的口碑舆情"}'
 
 curl -N http://localhost:8000/v1/tasks/<task_id>/events
