@@ -6,6 +6,7 @@
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 [![CI](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml)
+![Tests](https://img.shields.io/badge/tests-21%20passing-2EA043?style=flat-square)
 
 ## 亮点
 
@@ -16,7 +17,14 @@
 - **韧性设计**：工具级与 Agent 级重试；未配置 LLM API Key 时自动走 `MockLLM` 离线路径。
 - **可观测**：评测脚本、可选 LangSmith 追踪、Token 成本统计。
 
-实测结果：265 次真实 LLM 工具调用全部成功；60 个离线 `MockLLM` 任务并发基准全部完成；真实 LLM 并行调度将 P95 从 66.2s 降至 30.3s；真实 LLM 单任务平均成本 0.054 元。
+真实运行实测：
+
+| 实测项 | 结果 |
+| --- | --- |
+| 真实 LLM 工具调用 | **265** 次全部成功 |
+| P95 任务延迟（并行调度） | 66.2s → **30.3s** |
+| 真实 LLM 单任务平均成本 | **0.054 元** |
+| 离线并发基准 | 60 个 `MockLLM` 任务全部完成 |
 
 ## 技术栈
 
@@ -30,12 +38,12 @@
 
 ## 架构
 
-```text
-POST /v1/tasks
-  -> TaskManager: 任务队列、信号量、SSE 进度、Redis 快照
-  -> ForumEngine: Query + Media + Insight 三个 Agent
-  -> ReportEngine: HTML / Markdown / PDF
-  -> 状态查询、事件流与报告下载端点
+```mermaid
+flowchart LR
+    T["POST /v1/tasks"] --> TM["TaskManager<br/>任务队列 · 信号量<br/>SSE 进度 · Redis 快照"]
+    TM --> FE["ForumEngine<br/>Query + Media + Insight Agent<br/>共享 AgentContext · 工具调用"]
+    FE --> RE["ReportEngine<br/>HTML / Markdown / PDF<br/>ECharts 图表"]
+    TM --> E["GET /v1/tasks/{id} · /v1/tasks/{id}/events (SSE)<br/>GET /v1/reports/{id}?fmt=html|md|pdf"]
 ```
 
 ## 快速开始
@@ -121,7 +129,7 @@ python scripts/bench.py --concurrency 60 --tasks 60
 pytest tests -q
 ```
 
-实测于当前版本：21 个测试全部通过；总体覆盖率 73%，Agent 层 85-100%，两个引擎层 84-98%。
+实测于当前版本：21 个测试全部通过；覆盖集中在核心逻辑——Agent 层 85-100%，两个引擎层 84-98%。
 
 ## 项目结构
 
@@ -131,6 +139,7 @@ app/
 ├── agents/       # Query、Media、Insight Agent 与工具
 ├── engines/      # ForumEngine 与 ReportEngine
 └── core/         # LLM、缓存、数据库、任务管理、可观测
+frontend/         # React 19 任务控制台（SSE 进度、报告阅读器）
 scripts/          # 数据集构建、评测与基准
 tests/            # pytest 测试套件
 docker-compose.yml

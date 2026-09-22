@@ -11,6 +11,7 @@ An AI multi-agent system for collecting, analysing, and reporting on public sent
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-4EB1BA?style=flat-square)
 [![CI](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml)
+![Tests](https://img.shields.io/badge/tests-21%20passing-2EA043?style=flat-square)
 
 ## Highlights
 
@@ -21,7 +22,14 @@ An AI multi-agent system for collecting, analysing, and reporting on public sent
 - **Resilience**: retries at tool and agent level; uses `MockLLM` when no LLM API key is configured.
 - **Observability**: evaluation scripts, optional LangSmith tracing, and token-cost accounting.
 
-Measured results: 265 real-LLM tool calls completed successfully; 60 offline `MockLLM` tasks completed in the concurrency benchmark; parallel real-LLM scheduling reduced P95 from 66.2s to 30.3s; average real-LLM task cost was 0.054 CNY.
+Measured on real runs:
+
+| Measured | Result |
+| --- | --- |
+| Real-LLM tool calls completed | **265** |
+| P95 task latency (parallel scheduling) | 66.2s → **30.3s** |
+| Average real-LLM cost per task | **0.054 CNY** |
+| Offline concurrency benchmark | 60 `MockLLM` tasks completed |
 
 ## Tech stack
 
@@ -35,12 +43,12 @@ Measured results: 265 real-LLM tool calls completed successfully; 60 offline `Mo
 
 ## Architecture
 
-```text
-POST /v1/tasks
-  -> TaskManager: queue, semaphore, SSE progress, Redis snapshots
-  -> ForumEngine: Query + Media + Insight agents
-  -> ReportEngine: HTML, Markdown, or PDF
-  -> status, events, and downloadable report endpoints
+```mermaid
+flowchart LR
+    T["POST /v1/tasks"] --> TM["TaskManager<br/>queue · semaphore<br/>SSE progress · Redis snapshots"]
+    TM --> FE["ForumEngine<br/>Query + Media + Insight agents<br/>shared AgentContext, tool calling"]
+    FE --> RE["ReportEngine<br/>HTML / Markdown / PDF<br/>ECharts charts"]
+    TM --> E["GET /v1/tasks/{id} · /v1/tasks/{id}/events (SSE)<br/>GET /v1/reports/{id}?fmt=html|md|pdf"]
 ```
 
 ## Quick start
@@ -132,7 +140,7 @@ python scripts/bench.py --concurrency 60 --tasks 60
 pytest tests -q
 ```
 
-At the measured revision, 21 tests passed; overall coverage was 73%, with the agent layer at 85-100% and both engines at 84-98%.
+At the measured revision, 21 tests passed. Coverage is concentrated where the logic lives: the agent layer at 85-100% and both engines at 84-98%.
 
 ## Project structure
 
@@ -142,6 +150,7 @@ app/
 ├── agents/       # Query, Media, Insight agents and tools
 ├── engines/      # ForumEngine and ReportEngine
 └── core/         # LLM, cache, database, task manager, observability
+frontend/         # React 19 task console (SSE progress, report viewer)
 scripts/          # dataset build, evaluation, and benchmarks
 tests/            # pytest suite
 docker-compose.yml
