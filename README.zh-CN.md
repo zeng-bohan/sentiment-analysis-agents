@@ -149,7 +149,7 @@ docker-compose.yml
 
 - 配置 `LLM_API_KEY`（DeepSeek 或 OpenAI 兼容服务商）即可启用真实 function-calling 运行。
 - 当前工具数据源为演示数据，可替换为生产级爬虫与数据库。
-- 开发环境使用 `create_all` 建表；生产 schema 请使用 Alembic 或等价迁移工具。
+- 生产 schema 由 Alembic 管理：`alembic upgrade head`（Docker Compose 入口已自动执行）；`create_all` 仅用于本地开发快速启动。模型与迁移的漂移可用 `alembic check` 校验。
 - 配置 `LANGSMITH_API_KEY` 可启用可选的链路追踪上报。
 
 ## License

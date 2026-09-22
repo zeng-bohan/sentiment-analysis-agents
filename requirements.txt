@@ -17,6 +17,7 @@ sqlalchemy[asyncio]>=2.0
 asyncpg>=0.29
 pymysql>=1.1
 aiosqlite>=0.20
+alembic>=1.13
 
 # Cache
 redis>=5.0

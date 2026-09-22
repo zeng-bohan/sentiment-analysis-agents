@@ -16,5 +16,10 @@ jobs:
           cache: pip
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Migration drift check
+        run: |
+          export DATABASE_URL="sqlite+aiosqlite:///./ci_migrations.db"
+          alembic upgrade head
+          alembic check
       - name: Run tests
         run: pytest tests -q

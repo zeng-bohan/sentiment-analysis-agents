@@ -160,7 +160,7 @@ docker-compose.yml
 
 - Configure `LLM_API_KEY` with a DeepSeek or OpenAI-compatible provider for real function-calling runs.
 - The tool data sources are demonstrations and can be replaced with production crawlers and databases.
-- Development uses `create_all`; use Alembic or an equivalent migration tool for production schemas.
+- Schema migrations are managed by Alembic: `alembic upgrade head` (applied automatically by the Docker Compose entry). `create_all` remains for quick local/dev starts. Verify model-migration drift with `alembic check`.
 - Configure `LANGSMITH_API_KEY` to enable optional trace reporting.
 
 ## License
