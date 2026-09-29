@@ -163,6 +163,18 @@ docker-compose.yml
 - Schema migrations are managed by Alembic: `alembic upgrade head` (applied automatically by the Docker Compose entry). `create_all` remains for quick local/dev starts. Verify model-migration drift with `alembic check`.
 - Configure `LANGSMITH_API_KEY` to enable optional trace reporting.
 
+## Roadmap
+
+In priority order: replace the demonstration tool data sources with production crawlers and real databases, and add lint plus automated tests for the React task console (the current 21-test suite covers the backend only).
+
+## Support
+
+Bugs, questions, and feature ideas: [open an issue](https://github.com/zeng-bohan/sentiment-analysis-agents/issues). Bug reports should include reproduction steps and the relevant logs or response bodies.
+
+## Contributing
+
+This is a solo-maintained project. Issues for bugs and ideas are very welcome; for code changes, please open an issue first so the approach can be discussed before you invest time.
+
 ## License
 
 [MIT](LICENSE)

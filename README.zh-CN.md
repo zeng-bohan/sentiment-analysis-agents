@@ -152,6 +152,18 @@ docker-compose.yml
 - 生产 schema 由 Alembic 管理：`alembic upgrade head`（Docker Compose 入口已自动执行）；`create_all` 仅用于本地开发快速启动。模型与迁移的漂移可用 `alembic check` 校验。
 - 配置 `LANGSMITH_API_KEY` 可启用可选的链路追踪上报。
 
-## License
+## 路线图
+
+按优先级：把演示用的工具数据源替换为生产级爬虫与真实数据库；为 React 任务控制台补齐 lint 与自动化测试（当前 21 个测试只覆盖后端）。
+
+## 支持
+
+缺陷、问题与功能想法：[提一个 issue](https://github.com/zeng-bohan/sentiment-analysis-agents/issues)。缺陷报告请附复现步骤与相关日志或响应体。
+
+## 参与
+
+个人维护项目。欢迎通过 issue 反馈缺陷与想法；代码改动请先开 issue 讨论方案再动手。
+
+## 许可证
 
 [MIT](LICENSE)
