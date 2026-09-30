@@ -2,16 +2,19 @@
   <img src="docs/banner.svg" width="800" alt="Multi-agent Sentiment Analysis" />
 </p>
 
-# Multi-agent Sentiment Analysis
+<h1 align="center">Multi-agent Sentiment Analysis</h1>
 
-> English | [简体中文](README.zh-CN.md)
+<p align="center">
+  An AI multi-agent system for collecting, analysing, and reporting on public sentiment — parallel Query, Media, and Insight agents under a custom scheduler, with long-running task progress over SSE.
+</p>
 
-An AI multi-agent system for collecting, analysing, and reporting on public sentiment. It coordinates parallel Query, Media, and Insight agents through a custom scheduler and exposes long-running task progress over SSE.
+<p align="center">
+  English | <a href="README.zh-CN.md">简体中文</a>
+</p>
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-4EB1BA?style=flat-square)
 [![CI](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/zeng-bohan/sentiment-analysis-agents/actions/workflows/ci.yml)
-![Tests](https://img.shields.io/badge/tests-21%20passing-2EA043?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-4EB1BA?style=flat-square)
 
 ## Highlights
 
@@ -40,6 +43,16 @@ Measured on real runs:
 | Storage | PostgreSQL, Redis, SQLite (offline mode) |
 | Reporting | HTML / Markdown / PDF report engine, ECharts charts |
 | Infra & Ops | Docker Compose, GitHub Actions CI, optional LangSmith tracing |
+
+## Demo
+
+The React task console — submit tasks, watch the live SSE progress timeline, cancel runs, and read the rendered Markdown report with token/cost chips:
+
+![Task console](frontend/docs/console-demo.png)
+
+The generated report is a 12-chapter document with ECharts sentiment and channel-volume charts, agent deep-dive cards, risk/opportunity callouts and a full post appendix — available as HTML / Markdown / PDF (10+ pages) from the console or `/v1/reports/{id}`:
+
+![Analysis report](frontend/docs/report-demo.png)
 
 ## Architecture
 
@@ -97,27 +110,13 @@ curl -o report.html http://localhost:8000/v1/reports/<task_id>?fmt=html
 
 ### 4. Task console (web UI)
 
-A React single-page console lives in `frontend/` — submit tasks, watch the
-live SSE progress timeline, cancel runs, and read the rendered Markdown
-report with token/cost chips.
-
 ```bash
 cd frontend
 npm install
 npm run dev        # http://localhost:5173, proxied to :8000 (no CORS config needed)
 ```
 
-Start the backend first (mock LLM works without an API key). The console
-shows a green "connected" badge when the backend is reachable.
-
-![Task console](frontend/docs/console-demo.png)
-
-The generated report is a 12-chapter document with ECharts sentiment and
-channel-volume charts, agent deep-dive cards, risk/opportunity callouts
-and a full post appendix — available as HTML / Markdown / PDF (10+ pages)
-from the console or `/v1/reports/{id}`.
-
-![Analysis report](frontend/docs/report-demo.png)
+Start the backend first (mock LLM works without an API key). The console shows a green "connected" badge when the backend is reachable.
 
 ## API
 
@@ -156,12 +155,14 @@ tests/            # pytest suite
 docker-compose.yml
 ```
 
-## Production notes
+## Notes and gotchas
 
-- Configure `LLM_API_KEY` with a DeepSeek or OpenAI-compatible provider for real function-calling runs.
-- The tool data sources are demonstrations and can be replaced with production crawlers and databases.
-- Schema migrations are managed by Alembic: `alembic upgrade head` (applied automatically by the Docker Compose entry). `create_all` remains for quick local/dev starts. Verify model-migration drift with `alembic check`.
-- Configure `LANGSMITH_API_KEY` to enable optional trace reporting.
+- **Try it without an API key.** `LLM_API_KEY` is optional — the offline `MockLLM` path runs the full pipeline end to end, which is also what the tests use.
+- **The tool data sources are demonstrations.** They can be replaced with production crawlers and databases; do not treat the demo sources as production data.
+- **Schema migrations.** Alembic owns the schema: `alembic upgrade head` (applied automatically by the Docker Compose entry). `create_all` remains for quick local/dev starts. Verify model-migration drift with `alembic check`.
+- **Graceful degradation is intentional.** Redis failures fall back to in-memory cache behavior; SQLite (`sqlite+aiosqlite`) is a supported local database profile.
+- **Console proxying.** The frontend dev server proxies `/api` to `:8000` — no CORS configuration needed; start the backend first.
+- **Tracing.** Set `LANGSMITH_API_KEY` to enable optional trace reporting.
 
 ## Roadmap
 
